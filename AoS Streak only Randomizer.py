@@ -24,13 +24,13 @@ import random
 
 
 
-def getsave():
+def getsave(): #fetches the file; still need to change the filepath to be "universal"
     with open('C:/Users/kevin/AppData/LocalLow/Eremite Games/Against the Storm/CustomGamesLayout.save', 'r') as file:
         gsdata = json.load(file)
     print('got save')
     return gsdata
 
-def overwritesave(owsdata, prestige_var, altar_var):    
+def overwritesave(owsdata, prestige_var, altar_var):    #set the variables in the save file object, and then save it again. 
     i = 1
     while i < 6:        
         owsdata['layouts'][i]['name'] = str(i) + 'John'
@@ -48,10 +48,10 @@ def overwritesave(owsdata, prestige_var, altar_var):
     print("JSON data updated and saved successfully.")
 
 
-def randomize(prestige_var, altar_var):    
+def randomize(prestige_var, altar_var):    #The first section of randomizing the save
     rng = random.SystemRandom().randint(1,1000000000)
     biome = (rng % 5)
-    mods = modgen(rng, prestige_var, altar_var)
+    mods = modgen(rng, prestige_var, altar_var) #this particular function invoked is where RNG decides which modifiers to include
     match biome:
         case 0:
             biome = 'Royal Woodlands'
@@ -68,11 +68,12 @@ def randomize(prestige_var, altar_var):
     return [biome, seed, mods]
 
 
-def modgen(rng, prestige_var, altar_var):
-    #rng = rng % 100
-    rng = 0
-    #ifaltar = 0 #change this to be a variable set by the user wanting or not wanting Altar
-    if rng in range(0,15):
+def modgen(rng, prestige_var, altar_var): #decides the number of mods to enabled, and what the odds are. 
+    #Out of 100 games; 15 will have no modifiers, 20 will have 1 positive, 20 will have 1 Negative, 20 will have 1 of each, 4 will have 1 positive and two negative
+    #3 will have 2 positives and 1 negative, 7 will have two of each, 7 Will have two positive, and 3 will have two negatives.
+    #The above is intended to be edited significantly after some trial runs with other P20 players. 
+    rng = rng % 100
+    if rng in range(0,15): #Python's trailing number in a range is not inclusive
         return []
     elif rng in range (15,35):
         return modselect(1,0,prestige_var, altar_var)
@@ -94,11 +95,11 @@ def modgen(rng, prestige_var, altar_var):
         print('Error when deciding mod count')
 
 
-def modselect(x: int, y: int, prestige_var, altar_var):
+def modselect(x: int, y: int, prestige_var, altar_var): #This is where we actually pick the lucky mods that the player gets to benefit or suffer from
     modselected = []
     poslist = ["[Map Mod] 3 Order Picks", "[Mod] Replace Initial Glade - Ruins", "ModifierEffect_AdditionalGrass", "[Map Mod] Hostility People", "[Map Mod] Move", "[Map Mod] No Hostility", "[Map Mod] Bonus Timed Orders", "[Map Mod] Overgrown Library", "[Map Mod] Petrified Necropolis", "[Map Mod] Ruins", "[Map Mod] Trader Attack"]
     neglist = ["ModifierEffect_TradeBlock_Composite", "ModifierEffect_NoGrass", "[Map Mod] Dangerous Lands", "[Map Mod] Forbidden Lands", "[Mod] Less Hearth Range", "[Mod] Gathering Storm", "[Map Mod] Initial Hostility", "[Map Mod] Initial Impatience", "[Mod] Land of Greed", "[Map Mod] No Control", "[Map Mod] No Glade Info", "[Map Mod] No Goods Refund", "[Map Mod] No Orders", "[Mod] Ominous Presence", "[Map Mod] One Perk", "Pause Block", "ModifierEffect_TreeCuttingTime", "[Map Mod] Untamed Wilds", "ModifierEffect_LongStorm"]
-    numofpositive = 11 - 1 #keep -1 in place to avoid off by one errors
+    numofpositive = 11 - 1 #keep -1 in place to avoid off by one errors, left number is the number of mods in the game that is included in this. 
     numofnegative = 19 - 1
     pos1 = random.SystemRandom().randint(1,numofpositive)
     pos2 = pos1
@@ -136,7 +137,7 @@ def modselect(x: int, y: int, prestige_var, altar_var):
     return modselected
 
 def setperma(owsdata, i):
-    #tradeTowns - might not work this way; we'll see!
+    #tradeTowns - might not work this way; we'll see! Be sure to test this a bit more throughly once we get to testing stage
     #Town 1
     owsdata['layouts'][i]['tradeTowns'][0]['x'] = 1
     owsdata['layouts'][i]['tradeTowns'][0]['y'] = -8
@@ -171,7 +172,7 @@ def setperma(owsdata, i):
     owsdata['layouts'][i]['positiveSeasonalEffectsAmount'] = 1
     owsdata['layouts'][i]['negativeSeasonalEffectsAmount'] = 4
 
-class Window(tk.Tk):
+class Window(tk.Tk): 
     def __init__(self):
         super().__init__()
         self.title('Window')
@@ -199,14 +200,7 @@ class Window(tk.Tk):
         overwritesave(data, prestige_state, altar_state)
         self.destroy()
 
-# greeting = Label(
-#     text='Python rocks!',
-#     foreground="white",
-#     background= "black",
-#     width=100
-#     )
-# label = Label(window)
-# label.pack()
+
 if __name__ == "__main__":
     window = Window()
     window.mainloop()
